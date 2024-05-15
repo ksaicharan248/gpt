@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple Chat Box (Dark Mode)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #1e1e1e; /* Dark background */
+            color: #ffffff; /* Light text color */
+            margin: 0;
+        }
+        #chat-container {
+            width: 500px;
+            border: 1px solid #555; /* Dark border */
+            border-radius: 8px;
+            background-color: #333; /* Dark background */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        #chatbox {
+            height: 400px;
+            padding: 10px;
+            overflow-y: auto;
+            border-bottom: 1px solid #555; /* Dark border */
+        }
+        #chatbox p {
+            margin: 0;
+            padding: 8px;
+            border-radius: 4px;
+            background-color: #444; /* Darker chat background */
+            margin-bottom: 10px;
+        }
+        #input-container {
+            display: flex;
+            padding: 10px;
+        }
+        #messageInput {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #555; /* Dark border */
+            border-radius: 4px;
+            margin-right: 10px;
+            background-color: #555; /* Dark background */
+            color: #ffffff; /* Light text color */
+        }
+        #sendButton {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease; /* Smooth transition */
+        }
+        #sendButton:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chatbox"></div>
+        <div id="input-container">
+            <input type="text" id="messageInput" placeholder="Type your message here...">
+            <button id="sendButton" onclick="sendMessage()">Send Message</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        const chatbox = document.getElementById('chatbox');
+        const messageInput = document.getElementById('messageInput');
+        async function sendMessage() {
+            if (!messageInput.value || !messageInput.value.trim()) return;
+
+            const userMessage = messageInput.value.trim();
+            displayResponse(userMessage, 'user');
+
+            try {
+                const res = await axios.post('/chat', { prompt: userMessage });
+
+                displayResponse(res.data.response, 'bot');
+                messageInput.value = '';
+                chatbox.scrollTop = chatbox.scrollHeight;  // Scroll to bottom
+            } catch (error) {
+                console.error("Error sending message:", error);
+                displayResponse("Sorry, something went wrong. Please try again.", 'error');
+            }
+        }
+
+        function displayResponse(msg, sender) {
+            const messageElement = document.createElement('p');
+            messageElement.textContent = msg;
+            if (sender === 'user') {
+                messageElement.style.backgroundColor = '#00000';  // User messages have a different background
+                messageElement.style.textAlign = 'right';
+            } else if (sender === 'bot') {
+                messageElement.style.backgroundColor = '#00000';  // Bot messages have a different background
+                messageElement.style.textAlign = 'left';
+            } else if (sender === 'error') {
+                messageElement.style.backgroundColor = '#f8d7da';
+                messageElement.style.textAlign = 'center';
+            }
+            chatbox.appendChild(messageElement);
+        }
+
+
+
+        messageInput.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
